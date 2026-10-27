@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scape Halloween</title>
+<style>
+  :root {
+    --noche: #05070a;
+    --niebla: #cfd8cf;
+    --moho: #7fa88a;
+    --brillo: rgba(127, 168, 138, .45);
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; background: var(--noche); overflow: hidden; }
+  body {
+    color: var(--niebla);
+    font-family: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Escena */
+  #escena { position: fixed; inset: 0; }
+  #escena img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; opacity: 0; transform: scale(1);
+    transition: opacity 1.8s ease, transform 0s linear 1.8s;
+  }
+  #escena img.on {
+    opacity: 1; transform: scale(1.09);
+    transition: opacity 1.8s ease, transform 16s linear;
+  }
+  #escena::after { /* viñeta */
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.75) 100%);
+  }
+
+  /* Pantallas de inicio y final */
+  .pantalla {
+    position: fixed; inset: 0; z-index: 5;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 1.6rem; padding: 2rem; text-align: center;
+    background: var(--noche);
+    transition: opacity 1.2s ease, visibility 1.2s;
+  }
+  .pantalla.oculta { opacity: 0; visibility: hidden; pointer-events: none; }
+  #fin { background: rgba(5, 7, 10, .55); }
+
+  h1 {
+    font-size: clamp(2rem, 9vw, 3.6rem); font-weight: 400; font-style: italic;
+    letter-spacing: .02em; line-height: 1.15;
+    text-shadow: 0 0 24px var(--brillo);
+  }
+  p { max-width: 28ch; font-size: 1.05rem; line-height: 1.6; opacity: .8; }
+
+  button {
+    font: inherit; font-size: 1.15rem; color: var(--niebla);
+    background: transparent; border: 1px solid var(--moho); border-radius: 999px;
+    padding: .9rem 2.4rem; cursor: pointer;
+    box-shadow: 0 0 22px var(--brillo), inset 0 0 14px rgba(127,168,138,.15);
+    transition: background .25s, box-shadow .25s;
+  }
+  button:hover { background: rgba(127,168,138,.12); }
+  button:active { box-shadow: 0 0 36px var(--brillo); }
+  button:focus-visible { outline: 2px solid var(--niebla); outline-offset: 4px; }
+
+  /* Progreso */
+  #progreso {
+    position: fixed; left: 0; right: 0; bottom: 0; height: 3px; z-index: 4;
+    background: rgba(255,255,255,.08);
+  }
+  #barra {
+    height: 100%; background: var(--moho); transform-origin: left;
+    transform: scaleX(0); transition: transform .3s linear;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #escena img.on { transform: scale(1); transition: opacity 1.8s ease; }
+  }
+</style>
+</head>
+<body>
+
+<div id="escena" aria-hidden="true">
+  <img src="fantasma1.avif" alt="">
+  <img src="fantasma2.avif" alt="">
+  <img src="fantasma3.avif" alt="">
+  <img src="fantasma4.avif" alt="">
+  <img src="fantasma5.avif" alt="">
+  <img src="fantasma6.avif" alt="">
+</div>
+
+<div id="progreso"><div id="barra"></div></div>
+
+<section class="pantalla" id="inicio">
+  <h1>Algo se acerca</h1>
+  <p>Sube el volumen y escucha atentamente</p>
+  <button id="play" type="button">Play</button>
+</section>
+
+<section class="pantalla oculta" id="fin">
+  <h1>Los primero cuatro serán seleccionados por el espíritu que habita en la casa.</h1>
+  <button id="repetir" type="button">Volver a ver</button>
+</section>
+
+<audio id="audio" src="audio.mp3" preload="auto" playsinline></audio>
+
+<script>
+  const imgs = [...document.querySelectorAll("#escena img")];
+  const audio = document.getElementById("audio");
+  const inicio = document.getElementById("inicio");
+  const fin = document.getElementById("fin");
+  const barra = document.getElementById("barra");
+  let actual = -1;
+
+  function mostrar(i) {
+    if (i === actual) return;
+    actual = i;
+    imgs.forEach((im, k) => im.classList.toggle("on", k === i));
+  }
+
+  function empezar() {
+    inicio.classList.add("oculta");
+    fin.classList.add("oculta");
+    audio.currentTime = 0;
+    actual = -1;
+    mostrar(0);
+    audio.play().catch(() => {
+      inicio.classList.remove("oculta");
+      alert("No se pudo reproducir el audio. Toca Play otra vez.");
+    });
+  }
+
+  // La imagen depende del punto exacto del audio, así que acaban a la vez.
+  audio.addEventListener("timeupdate", () => {
+    const d = audio.duration || 73;
+    const t = audio.currentTime / d;
+    mostrar(Math.min(imgs.length - 1, Math.floor(t * imgs.length)));
+    barra.style.transform = "scaleX(" + Math.min(1, t) + ")";
+  });
+
+  audio.addEventListener("ended", () => {
+    barra.style.transform = "scaleX(1)";
+    fin.classList.remove("oculta");
+  });
+
+  document.getElementById("play").addEventListener("click", empezar);
+  document.getElementById("repetir").addEventListener("click", empezar);
+</script>
+</body>
+</html>
