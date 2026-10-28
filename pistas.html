@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pistas · Scape Halloween</title>
+<style>
+  :root {
+    --noche: #05070a;
+    --niebla: #cfd8cf;
+    --moho: #7fa88a;
+    --brillo: rgba(127, 168, 138, .45);
+    --error: #c97b7b;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { min-height: 100%; background: var(--noche); }
+  body {
+    color: var(--niebla);
+    font-family: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    -webkit-tap-highlight-color: transparent;
+    padding: max(1.2rem, env(safe-area-inset-top)) 1.2rem max(1.2rem, env(safe-area-inset-bottom));
+    background: radial-gradient(ellipse at top, #0e1612 0%, var(--noche) 60%) fixed;
+  }
+  main { max-width: 34rem; margin: 0 auto; display: flex; flex-direction: column; gap: 1.6rem; padding-top: 3.2rem; }
+  .volver {
+    position: absolute; top: max(1.2rem, env(safe-area-inset-top)); left: 1.2rem;
+    color: var(--niebla); text-decoration: none; font-size: .95rem; opacity: .8;
+    border: 1px solid var(--moho); border-radius: 999px; padding: .5rem 1rem;
+    box-shadow: 0 0 14px var(--brillo);
+  }
+  .volver:hover { opacity: 1; }
+  h1 {
+    font-size: clamp(2rem, 9vw, 3rem); font-weight: 400; font-style: italic;
+    text-align: center; text-shadow: 0 0 24px var(--brillo);
+  }
+  .intro { text-align: center; opacity: .8; line-height: 1.6; }
+
+  form { display: flex; flex-direction: column; gap: 1rem; }
+  input {
+    font: inherit; font-size: 1.15rem; color: var(--niebla); text-align: center;
+    background: rgba(255,255,255,.04); border: 1px solid var(--moho); border-radius: 999px;
+    padding: .9rem 1.4rem; width: 100%;
+    box-shadow: inset 0 0 14px rgba(127,168,138,.15);
+  }
+  input::placeholder { color: rgba(207,216,207,.4); }
+  input:focus-visible { outline: 2px solid var(--niebla); outline-offset: 3px; }
+  button {
+    font: inherit; font-size: 1.1rem; color: var(--niebla);
+    background: transparent; border: 1px solid var(--moho); border-radius: 999px;
+    padding: .85rem 2rem; cursor: pointer; align-self: center;
+    box-shadow: 0 0 22px var(--brillo), inset 0 0 14px rgba(127,168,138,.15);
+    transition: background .25s;
+  }
+  button:hover { background: rgba(127,168,138,.12); }
+  button:focus-visible { outline: 2px solid var(--niebla); outline-offset: 4px; }
+
+  #mensaje { min-height: 1.5rem; text-align: center; font-style: italic; }
+  #mensaje.mal { color: var(--error); animation: tiembla .4s; }
+  @keyframes tiembla { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+  #lista { display: flex; flex-direction: column; gap: 1rem; list-style: none; padding: 0; }
+  #lista li {
+    border: 1px solid rgba(127,168,138,.5); border-radius: 14px; padding: 1.1rem 1.2rem;
+    background: rgba(127,168,138,.06); line-height: 1.6;
+    box-shadow: 0 0 18px rgba(127,168,138,.15);
+    animation: aparece 1.4s ease;
+  }
+  #lista li small { display: block; opacity: .55; margin-bottom: .3rem; letter-spacing: .08em; text-transform: uppercase; font-size: .72rem; }
+  @keyframes aparece { from { opacity: 0; transform: translateY(10px); filter: blur(4px); } }
+  .contador { text-align: center; opacity: .6; font-size: .9rem; }
+  .borrar { align-self: center; font-size: .8rem; padding: .4rem 1rem; opacity: .5; box-shadow: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    #lista li, #mensaje.mal { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<a class="volver" href="index.html">← Volver</a>
+
+<main>
+  <h1>Pistas</h1>
+  <p class="intro">Escribe aquí la solución de un acertijo. Si es correcta, el espíritu te revelará una pista.</p>
+
+  <form id="formulario" autocomplete="off">
+    <input id="texto" type="text" placeholder="Escribe la solución…" enterkeyhint="send" autocapitalize="off" spellcheck="false" aria-label="Solución del acertijo">
+    <button type="submit">Comprobar</button>
+  </form>
+
+  <p id="mensaje" role="status" aria-live="polite"></p>
+  <p class="contador" id="contador"></p>
+  <ul id="lista"></ul>
+  <button class="borrar" id="borrar" type="button" hidden>Borrar pistas descubiertas</button>
+</main>
+
+<script>
+  /* ============================================================
+     EDITA AQUÍ TUS ACERTIJOS
+     - respuestas: todas las formas válidas de escribir la solución
+       (no importan mayúsculas, tildes ni espacios de más).
+     - pista: el texto que se revelará al acertar.
+     Los de abajo son EJEMPLOS: cámbialos por los tuyos.
+     ============================================================ */
+  const ACERTIJOS = [
+    {
+      respuestas: ["ahorcado", "el ahorcado"],
+      pista: "Bien hecho. Busca donde la cuerda cuelga: algo se esconde a la altura de tus ojos."
+    },
+    {
+      respuestas: ["espejo"],
+      pista: "El reflejo no miente. Mira detrás del espejo de la entrada."
+    },
+    {
+      respuestas: ["fantasma", "un fantasma"],
+      pista: "Ya lo has visto acercarse. Ahora cuenta cuántos pasos dio hasta ti."
+    }
+  ];
+  /* ============================================================ */
+
+  const CLAVE = "scape_pistas_halloween";
+  const form = document.getElementById("formulario");
+  const texto = document.getElementById("texto");
+  const mensaje = document.getElementById("mensaje");
+  const lista = document.getElementById("lista");
+  const contador = document.getElementById("contador");
+  const borrar = document.getElementById("borrar");
+
+  const norm = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                     .replace(/[^a-z0-9ñ ]/g, "").replace(/\s+/g, " ").trim();
+
+  let resueltos = [];
+  try { resueltos = JSON.parse(localStorage.getItem(CLAVE)) || []; } catch (e) {}
+  const guardar = () => { try { localStorage.setItem(CLAVE, JSON.stringify(resueltos)); } catch (e) {} };
+
+  function pintar() {
+    lista.innerHTML = "";
+    resueltos.forEach(i => {
+      const a = ACERTIJOS[i]; if (!a) return;
+      const li = document.createElement("li");
+      const s = document.createElement("small");
+      s.textContent = "Pista " + (i + 1);
+      li.append(s, document.createTextNode(a.pista));
+      lista.append(li);
+    });
+    contador.textContent = resueltos.length ? resueltos.length + " de " + ACERTIJOS.length + " pistas descubiertas" : "";
+    borrar.hidden = !resueltos.length;
+  }
+
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const t = norm(texto.value);
+    if (!t) return;
+    const i = ACERTIJOS.findIndex(a => a.respuestas.some(r => norm(r) === t));
+    mensaje.className = "";
+    void mensaje.offsetWidth; // reinicia la animación
+    if (i === -1) {
+      mensaje.textContent = "Nada ocurre… Prueba otra vez.";
+      mensaje.className = "mal";
+    } else if (resueltos.includes(i)) {
+      mensaje.textContent = "Esa pista ya la tienes.";
+    } else {
+      resueltos.push(i);
+      resueltos.sort((a, b) => a - b);
+      guardar();
+      mensaje.textContent = "El espíritu susurra una pista…";
+      pintar();
+    }
+    texto.value = "";
+  });
+
+  borrar.addEventListener("click", () => {
+    resueltos = []; guardar(); pintar(); mensaje.textContent = "";
+  });
+
+  pintar();
+</script>
+</body>
+</html>

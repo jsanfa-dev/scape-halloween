@@ -64,6 +64,21 @@
   button:active { box-shadow: 0 0 36px var(--brillo); }
   button:focus-visible { outline: 2px solid var(--niebla); outline-offset: 4px; }
 
+  /* Enlaces inferiores de la pantalla de inicio */
+  .enlace {
+    position: absolute; bottom: max(1.2rem, env(safe-area-inset-bottom));
+    font-size: .95rem; color: var(--niebla); text-decoration: none;
+    background: rgba(5, 7, 10, .6); border: 1px solid var(--moho); border-radius: 999px;
+    padding: .65rem 1.2rem;
+    box-shadow: 0 0 16px var(--brillo), inset 0 0 10px rgba(127,168,138,.15);
+    transition: background .25s, box-shadow .25s;
+  }
+  .enlace:hover { background: rgba(127,168,138,.12); }
+  .enlace:active { box-shadow: 0 0 30px var(--brillo); }
+  .enlace:focus-visible { outline: 2px solid var(--niebla); outline-offset: 4px; }
+  .enlace.izq { left: max(1.2rem, env(safe-area-inset-left)); }
+  .enlace.der { right: max(1.2rem, env(safe-area-inset-right)); }
+
   /* Progreso */
   #progreso {
     position: fixed; left: 0; right: 0; bottom: 0; height: 3px; z-index: 4;
@@ -96,10 +111,12 @@
   <h1>Algo se acerca</h1>
   <p>Sube el volumen y escucha atentamente</p>
   <button id="play" type="button">Play</button>
+  <a class="enlace izq" href="pistas.html">🔎 Pistas</a>
+  <a class="enlace der" href="calabaza-fantasma.html">🎃 Juego</a>
 </section>
 
 <section class="pantalla oculta" id="fin">
-  <h1>Los primero cuatro serán seleccionados por el espíritu que habita en la casa.</h1>
+  <h1>Los primeros cuatro serán seleccionados por el espíritu que habita en la casa.</h1>
   <button id="repetir" type="button">Volver a ver</button>
 </section>
 
