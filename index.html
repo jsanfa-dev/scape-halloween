@@ -117,7 +117,7 @@ mas<!DOCTYPE html>
 
 <section class="pantalla oculta" id="fin">
   <h1>Los primeros cuatro serán seleccionados por el espíritu que habita en la casa.</h1>
-  <button id="repetir" type="button">Volver a ver</button>
+  <button id="repetir" type="button">Volver al inicio</button>
 </section>
 
 <audio id="audio" src="audio.mp3" preload="auto" playsinline></audio>
@@ -148,6 +148,16 @@ mas<!DOCTYPE html>
     });
   }
 
+  function volverAlInicio() {
+  fin.classList.add("oculta");
+  inicio.classList.remove("oculta");
+  audio.pause();
+  audio.currentTime = 0;
+  barra.style.transform = "scaleX(0)";
+  actual = -1;
+  imgs.forEach(im => im.classList.remove("on"));
+  }
+
   // La imagen depende del punto exacto del audio, así que acaban a la vez.
   audio.addEventListener("timeupdate", () => {
     const d = audio.duration || 73;
@@ -162,7 +172,8 @@ mas<!DOCTYPE html>
   });
 
   document.getElementById("play").addEventListener("click", empezar);
-  document.getElementById("repetir").addEventListener("click", empezar);
+  document.getElementById("repetir").addEventListener("click", volverAlInicio);
 </script>
 </body>
 </html>
+            
