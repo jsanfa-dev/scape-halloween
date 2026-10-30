@@ -1,4 +1,4 @@
-mas<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -46,6 +46,39 @@ mas<!DOCTYPE html>
   .pantalla.oculta { opacity: 0; visibility: hidden; pointer-events: none; }
   #fin { background: rgba(5, 7, 10, .55); }
 
+  /* Inicio con dos páginas: portada y menú (el scroll revela los botones) */
+  #inicio {
+    display: block; padding: 0; gap: 0;
+    overflow-y: auto; overscroll-behavior: contain;
+    scroll-snap-type: y mandatory;
+  }
+  .portada, .menu { scroll-snap-align: start; }
+  .portada { position: relative; height: 100%; background: var(--noche); }
+  .portada img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: 50% 0;
+  }
+  .portada::after { /* oscurece el borde inferior para que se lea "Desliza" */
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(to bottom, transparent 70%, rgba(5, 7, 10, .85));
+  }
+  .menu {
+    position: relative; min-height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 1.6rem; padding: 2rem; text-align: center;
+  }
+  .desliza {
+    position: absolute; z-index: 1; left: 50%; transform: translateX(-50%);
+    bottom: max(1.4rem, env(safe-area-inset-bottom));
+    display: flex; flex-direction: column; align-items: center; gap: .2rem;
+    padding: .5rem 1.2rem; font-size: 1rem;
+    background: none; border: 0; box-shadow: none;
+    text-shadow: 0 0 12px rgba(0, 0, 0, .9);
+  }
+  .desliza:hover, .desliza:active { background: none; box-shadow: none; }
+  .desliza span { font-size: 1.6rem; line-height: 1; animation: rebota 1.8s ease-in-out infinite; }
+  @keyframes rebota { 50% { transform: translateY(6px); } }
+
   h1 {
     font-size: clamp(2rem, 9vw, 3.6rem); font-weight: 400; font-style: italic;
     letter-spacing: .02em; line-height: 1.15;
@@ -91,6 +124,7 @@ mas<!DOCTYPE html>
 
   @media (prefers-reduced-motion: reduce) {
     #escena img.on { transform: scale(1); transition: opacity 1.8s ease; }
+    .desliza span { animation: none; }
   }
 </style>
 </head>
@@ -108,11 +142,17 @@ mas<!DOCTYPE html>
 <div id="progreso"><div id="barra"></div></div>
 
 <section class="pantalla" id="inicio">
-  <h1>Algo se acerca</h1>
-  <p>Sube el volumen y escucha atentamente</p>
-  <button id="play" type="button">Play</button>
-  <a class="enlace izq" href="pistas.html">🔎 Casos sin resolver</a>
-  <a class="enlace der" href="calabaza-fantasma.html">🎃 Juego</a>
+  <div class="portada">
+    <img src="tumba_001.jpg" alt="La Casa Maldita: la tumba de las luciérnagas">
+    <button class="desliza" id="desliza" type="button">Desliza<span aria-hidden="true">↓</span></button>
+  </div>
+  <div class="menu" id="menu">
+    <h1>Algo se acerca</h1>
+    <p>Sube el volumen y escucha atentamente</p>
+    <button id="play" type="button">Play</button>
+    <a class="enlace izq" href="pistas.html">🔎 Casos sin resolver</a>
+    <a class="enlace der" href="calabaza-fantasma.html">🎃 Juego</a>
+  </div>
 </section>
 
 <section class="pantalla oculta" id="fin">
@@ -151,6 +191,7 @@ mas<!DOCTYPE html>
   function volverAlInicio() {
   fin.classList.add("oculta");
   inicio.classList.remove("oculta");
+  inicio.scrollTop = 0;
   audio.pause();
   audio.currentTime = 0;
   barra.style.transform = "scaleX(0)";
@@ -171,6 +212,9 @@ mas<!DOCTYPE html>
     fin.classList.remove("oculta");
   });
 
+  document.getElementById("desliza").addEventListener("click", () => {
+    document.getElementById("menu").scrollIntoView({ behavior: "smooth" });
+  });
   document.getElementById("play").addEventListener("click", empezar);
   document.getElementById("repetir").addEventListener("click", volverAlInicio);
 </script>
